@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from collections import defaultdict
 
 
 class Agent:
@@ -11,6 +12,9 @@ class Agent:
         self.gamma = gamma
         if mode == "mc_control":
             self.step = self.step_mc_control
+            self.alpha = 0.01  # Optimal
+            self.gamma = 0.9  # Optimal
+            self.episode = list()
         elif mode == "q_learning":
             self.step = self.step_q_learning
             self.alpha = 0.2  # Optimal
@@ -42,7 +46,15 @@ class Agent:
         - next_state: the current state of the environment
         - done: whether the episode is complete (True or False)
         """
-        pass
+        if done:
+            rewards = defaultdict(lambda: np.zeros(self.nA))
+            for history in reversed(self.episode):
+                state, action, reward = history
+                rewards[state][action] = reward + self.gamma * rewards[state][action]
+                self.Q[state][action] += self.alpha * (rewards[state][action] - self.Q[state][action])
+            self.episode.clear()
+        else:
+            self.episode.append((state, action, reward))
 
     def step_q_learning(self, state, action, reward, next_state, done):
         """

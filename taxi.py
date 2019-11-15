@@ -6,6 +6,7 @@ from agent import Agent
 import time
 
 env = gym.make("Taxi-v3")
+print(env.spec.id)
 
 # No. of possible actions
 action_size = env.action_space.n
